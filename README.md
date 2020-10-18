@@ -4,5 +4,5 @@ Questo è il codice sorgente di un bot di telegram che permette di vedere i voti
 pip install telepot 
 pip intall pyppeteer
 
-#CONFIGURAZIONE:
+# CONFIGURAZIONE:
 Inserire il bot token nelle virgolette dopo la classe bot_token e le credenziali d'accesso 
