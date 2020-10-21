@@ -26,9 +26,9 @@ import asyncio
 from telepot.loop import MessageLoop    
 
 from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
-#qui dovresti inserire il bot token per poterlo integrare con la api di telegram (per creare un bot di telegram devi usare @BotFather)
+#qui devi isnerire il bot token 
 bot_token = ''
-#qui dovreste inserire le vostre credenziali 
+#qui devi mettere il tuo username e la tua password di nuvola
 os.environ['nuvola_username'] = ""
 os.environ['nuvola_password'] = ""
 bot = telepot.Bot(bot_token)
@@ -38,21 +38,26 @@ state = ["", False]
 page = None
 browser = None
 loggedin = False
+#qui dovete inserire gli url dove dovrà andare il bot (se sono diversi da quelli che ho messo)
+loginurl='https://nuvola.madisoft.it/login'
+votiurl='https://nuvola.madisoft.it/area_tutore/voto/situazione'
 
+
+ 
 async def login(): 
     global browser
     global page
     global loggedin 
-    
+   
     if loggedin == False:   
     
         browser=await launch(options={'args': ['--no-sandbox']})
+        #per effetture dei test dove vedere dove và il browser commentare la linea sopra e decommentre la linea sotto 
+        #browser = await launch({'headless': False})
         page = await browser.newPage()
-        time.sleep(1) 
-        #questa parte serve a dire al pyppeteer dove andare  
-        await page.goto('https://nuvola.madisoft.it/login')
         time.sleep(1)
-        #tutti questi time sleep servono a far funzionare sempre il login, ogni tanto se è troppo veloce è possibile che non registri le credenziali
+        await page.goto(loginurl)
+        time.sleep(1)
         await page.type('#username',os.environ['nuvola_username'],{'delattr': 300})
         time.sleep(1)
         await page.type('#password',os.environ['nuvola_password'],{'delattr': 300})
@@ -60,18 +65,17 @@ async def login():
         await page.click('button')
         loggedin = True 
         time.sleep(1)
+
         
 async def get_voti(query):
     await login()
 
    
-    await page.goto('https://nuvola.madisoft.it/area_tutore/voto/situazione')
+    await page.goto(votiurl)
     time.sleep(1)
-    #qui dovreste mettere i chatID delle chat dove volete che il bot possa mandare messaggi, per vedere i chat id prima bisogna mandare un messaggio
-    #al bot che si stà creando e andare su https://api.telegram.org/bot<inserirequiilbottoken)/getUpdates
+    #qui devi mettere i chatID dove vuoi che il bot funzioni 
     chats = [''] 
     try: 
-        #questa parte serve a fargli prendere i voti, materie e colonne 
         materie = await page.querySelectorAll('tbody th')
         voti = await page.querySelectorAll ('tbody td')
         head = await page.querySelectorAll ('thead th')
@@ -103,7 +107,7 @@ async def get_voti(query):
         print ("Media: ")
            
 
-            #questa parte serve a fargli calcolare e scrivere la media dei voti 
+            
         try:
             Media_voti = int(sum(votiFloat) / len(votiFloat))
         except ZeroDivisionError:
@@ -116,9 +120,10 @@ async def get_voti(query):
         for chatId in chats:
             telegram_bot_sendtext(chatId, Media_voti, text + ' voti: ' + voti)
     except ValueError:
-        for chatId in chats:
-    #questa parte serve a non far crashare il codice se cambiano il nome di una materia 
-            telegram_bot_sendtext(chatId, '', 'la materia non è presente su nuvola')
+        loggedin=False
+        get_voti(query)
+      #  for chatId in chats:
+           # telegram_bot_sendtext(chatId, '', 'hanno cambiato il nome della materia su nuvola, avvertimi che cambio nà stringa')
     #await browser.close() 
 
 def on_callback_query(msg):
@@ -131,7 +136,7 @@ def on_callback_query(msg):
     
     
 
-    #questa parte serve ad fargli prendere gli input da un bot di telegram 
+    
 def on_chat_message(msg):
     content_type, chat_type, chat_id = telepot.glance(msg)
     print(msg.keys())
@@ -146,8 +151,7 @@ def on_chat_message(msg):
                    [InlineKeyboardButton(text='TRG', callback_data='TECNOLOGIE E TECNICHE DI RAPPRESENTAZIONE GRAFICA')],
                    [InlineKeyboardButton(text='Informatica', callback_data='SCIENZE E TECNOLOGIE APPLICATE')],
                    [InlineKeyboardButton(text='Motoria', callback_data='SCIENZE MOTORIE E SPORTIVE')],
-                   #potete usare la linea commentata sottostante per aggiungere altre materie (se ne avete altre)
-                   #[InlineKeyboardButton(text='nomemateria', callback_data='nomemateria sul sito')],
+                  #[InlineKeyboardButton(text='nomemateria', callback_data='nomemateria sul sito')],
             ])
     if content_type == 'text':
         if msg["text"] == '/start':
@@ -173,9 +177,11 @@ async def main(state):
             await get_voti(currentQuery)
             state[0] = ""
             state[1] = False
+       # time.sleep(5)
+    
 
     #   await page.screenshot({'path': 'example.png'})
-
+    #time.sleep(10)
     
 
 asyncio.get_event_loop().run_until_complete(main(state))
