@@ -26,6 +26,7 @@ import asyncio
 from telepot.loop import MessageLoop    
 
 from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
+<<<<<<< HEAD
 
 bot_token = input("dammi il bot token ")
 
@@ -34,6 +35,13 @@ password = input("dammi la tua password ")
 #here you have to insert your username and password 
 os.environ['nuvola_username'] = user
 os.environ['nuvola_password'] = password
+=======
+#qui devi isnerire il bot token 
+bot_token = ''
+#qui devi mettere il tuo username e la tua password di nuvola
+os.environ['nuvola_username'] = ""
+os.environ['nuvola_password'] = ""
+>>>>>>> 594968dc6c3e2047cc77473229f583c9c3813515
 bot = telepot.Bot(bot_token)
 
 state = ["", False]
@@ -41,10 +49,18 @@ state = ["", False]
 page = None
 browser = None
 loggedin = False
+<<<<<<< HEAD
 #qui dovete inserire gli url del login e dei voti (se sono differenti da quello che ho messo io)
 loginurl='https://nuvola.madisoft.it/login'
 votiurl='https://nuvola.madisoft.it/area_tutore/voto/situazione'
  
+=======
+#qui dovete inserire gli url dove dovrà andare il bot (se sono diversi da quelli che ho messo)
+loginurl='https://nuvola.madisoft.it/login'
+votiurl='https://nuvola.madisoft.it/area_tutore/voto/situazione'
+
+
+>>>>>>> 594968dc6c3e2047cc77473229f583c9c3813515
  
 async def login(): 
     global browser
@@ -54,7 +70,11 @@ async def login():
     if loggedin == False:   
     
         browser=await launch(options={'args': ['--no-sandbox']})
+<<<<<<< HEAD
         #commentate la linea sopra e togliete il commento dalla linea sotto se volete vedere cosa fà il browser (se sta su un server non funziona)
+=======
+        #per effetture dei test dove vedere dove và il browser commentare la linea sopra e decommentre la linea sotto 
+>>>>>>> 594968dc6c3e2047cc77473229f583c9c3813515
         #browser = await launch({'headless': False})
         page = await browser.newPage()
         time.sleep(1)
@@ -76,7 +96,12 @@ async def get_voti(query):
    
     await page.goto(votiurl)
     time.sleep(1)
+<<<<<<< HEAD
     chats = ['426620398'] 
+=======
+    #qui devi mettere i chatID dove vuoi che il bot funzioni 
+    chats = [''] 
+>>>>>>> 594968dc6c3e2047cc77473229f583c9c3813515
     try: 
         materie = await page.querySelectorAll('tbody th')
         voti = await page.querySelectorAll ('tbody td')
@@ -123,6 +148,7 @@ async def get_voti(query):
             telegram_bot_sendtext(chatId, Media_voti, text + ' voti: ' + voti)
     except ValueError:
         loggedin=False
+<<<<<<< HEAD
         await page.goto(loginurl)
         time.sleep(1)
         await page.type('#username',os.environ['nuvola_username'],{'delattr': 300})
@@ -131,6 +157,9 @@ async def get_voti(query):
         time.sleep(2)
         await page.click('button')
         await page.goto(votiurl)
+=======
+        get_voti(query)
+>>>>>>> 594968dc6c3e2047cc77473229f583c9c3813515
       #  for chatId in chats:
            # telegram_bot_sendtext(chatId, '', 'hanno cambiato il nome della materia su nuvola, avvertimi che cambio nà stringa')
     #await browser.close() 
